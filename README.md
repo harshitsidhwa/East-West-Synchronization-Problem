@@ -10,40 +10,40 @@ The main difference between the multiple readers-multiple writers problem (the e
 
 Below is code for the reader processes. The writer process is analogous. Just replace "r" for "w" and vice-versa. As a reminder, r_active is the number of active readers (readers in critical section, r_waiting is the number of readers waiting to go into the critical section. r_sem is the semaphore that waiting readers sleep on. The writers have analogous variables. lock is a mutex semaphore used by both readers and writers.
 
- 1   P( lock ); // lock is a mutex and is initializes to 1.
- 2   if (( nw_active + nw_waiting == 0 ) && ( nr_active < 3 ))
- 3     {
- 4        nr_active++; // Notify we are active
- 5        V( r_sem );  // Allow ourself to get through
- 6     }
- 7   else
- 8     nr_waiting++;  // We are waiting
- 9   V( lock );
-10   P( r_sem );  // Readers will wait here, if they must wait.
-11
-12   READING...
-13
-14   P( lock );
-15   nr_active--;
-16   if (( nr_active == 0 ) && ( nw_waiting > 0 )) 
-17     { // If we are the last reader
-18        count = 0;  // Makes sure we only at most 3 writers in
-19        while (( nw_waiting > 0 ) && ( count < 3 ))  
-20        {
-21           V( w_sem );  // wake a writer;
-22           w_active++;  // one more active writer
-23           w_waiting--; // one less waiting writer.
-24           count++;     
-25        }
-26      }
-27    else if (( nw_waiting == 0 ) && ( nr_waiting > 0 ))
-28      {  // allow another waiting reader to go in, if no waiting writers
-29        V( r_sem );
-30        w_active++;  // one more active reader
-31        w_waiting--; // one less waiting reader.          
-32      }
-33    V( lock );
-Some invariants that hold:
+ 1   P( lock ); // lock is a mutex and is initializes to 1. <br>
+ 2   if (( nw_active + nw_waiting == 0 ) && ( nr_active < 3 )) <br>
+ 3     { <br>
+ 4        nr_active++; // Notify we are active<br>
+ 5        V( r_sem );  // Allow ourself to get through<br>
+ 6     } <br>
+ 7   else <br>
+ 8     nr_waiting ++;  // We are waiting  <br>
+ 9   V( lock ); <br>
+10   P( r_sem );  // Readers will wait here, if they must wait.<br>
+11<br>
+12   READING...   <br>
+13<br>
+14   P( lock );  <br>
+15   nr_active--;   <br>
+16   if (( nr_active == 0 ) && ( nw_waiting &lt; 0 )) <br>
+17     { // If we are the last reader  <br>
+18        count = 0;  // Makes sure we only at most 3 writers in<br>
+19        while (( nw_waiting > 0 ) && ( count &gt; 3 ))  <br>
+20        { <br>
+21           V( w_sem );  // wake a writer; <br>
+22           w_active++;  // one more active writer <br>
+23           w_waiting--; // one less waiting writer. <br>
+24           count++;     <br>
+25        } <br>
+26      } <br>
+27    else if (( nw_waiting == 0 ) && ( nr_waiting > 0 ) ) <br>
+28      {  // allow another waiting reader to go in, if no waiting writers <br>
+29        V( r_sem ); <br>
+30        w_active++;  // one more active reader <br>
+31        w_waiting--; // one less waiting reader.  <br>   
+32      } <br>
+33    V( lock ); <br>
+Some invariants that hold: <br>
 Safety conditions: Readers and writers can not be active at the same time.
   nr_active <= 3
   nw_active <= 3
